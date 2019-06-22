@@ -67,7 +67,7 @@ namespace SplineMesh {
             if (!updateInPlayMode && Application.isPlaying) return;
 
             if (toUpdate) {
-                toUpdate = false;
+                toUpdate = !Application.isPlaying;
                 CreateMeshes();
             }
         }

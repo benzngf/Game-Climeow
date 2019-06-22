@@ -212,7 +212,7 @@ namespace SplineMesh {
             float intervalLength = useSpline?
                 (intervalEnd == 0 ? spline.Length : intervalEnd) - intervalStart :
                 curve.Length;
-            int repetitionCount = Mathf.FloorToInt(intervalLength / source.Length);
+            int repetitionCount = Mathf.CeilToInt(intervalLength / source.Length);
 
 
             // building triangles and UVs for the repeated mesh
@@ -253,16 +253,22 @@ namespace SplineMesh {
                     CurveSample sample;
                     if (!sampleCache.TryGetValue(distance, out sample)) {
                         if (!useSpline) {
-                            if (distance > curve.Length) continue;
+                            if (distance > curve.Length) 
+                            {
+                                if(i == repetitionCount-1) distance = curve.Length;
+                                else continue;
+                            }
                             sample = curve.GetSampleAtDistance(distance);
                         } else {
                             float distOnSpline = intervalStart + distance;
-                            if (true) { //spline.isLoop) {
-                                while (distOnSpline > spline.Length) {
-                                    distOnSpline -= spline.Length;
+                            if (distOnSpline > spline.Length) {
+                                if (spline.IsLoop) {
+                                    while (distOnSpline > spline.Length) {
+                                        distOnSpline -= spline.Length;
+                                    }
+                                } else {
+                                    distOnSpline = spline.Length;
                                 }
-                            } else if (distOnSpline > spline.Length) {
-                                continue;
                             }
                             sample = spline.GetSampleAtDistance(distOnSpline);
                         }

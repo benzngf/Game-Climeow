@@ -275,6 +275,11 @@ namespace SplineMesh {
             start.Up = end.Up;
             start.Changed += StartNodeChanged;
         }
+        public void ManualUpdateInEditor()
+        {
+            UpdateAfterCurveChanged();
+            updateLoopBinding();
+        }
     }
 
     public enum ListChangeType {
@@ -290,5 +295,7 @@ namespace SplineMesh {
         public int insertIndex, removeIndex;
     }
     public delegate void ListChangeHandler<T2>(object sender, ListChangedEventArgs<T2> args);
+
+    
 
 }
