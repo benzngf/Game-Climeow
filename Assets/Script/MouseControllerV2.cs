@@ -6,41 +6,43 @@ public class MouseControllerV2 : MonoBehaviour
 {
     // Start is called before the first frame update
     public GameObject Head;
+    public ParticleSystem HeadPendingP;
     public GameObject Pipi;
+    public ParticleSystem PipiPendingP;
     public float speed;
     public float rotSpeed;
     private Vector2 ShootingVelHead;
     private Vector2 ShootingVelPipi;
-    private bool bIsSlomo;
-    public float SlomoDilation = 0.1f;
     private bool bPendingHead, bPendingPipi;
-    private float savedFixedDeltaTime;
     public Vector3 HeadPivot;
     public Vector3 PipiPivot;
     public SpringJoint2D Joint;
     public float JointAffectMinDist;
     private float Dist;
+
+    public AudioSource ShootSound;
+    public AudioSource SpinSound;
     void Start()
     {
         ShootingVelHead = new Vector2(0,0);
         ShootingVelPipi = new Vector2(0,0);
-        savedFixedDeltaTime = Time.fixedDeltaTime;
     }
 
     // Update is called once per frame
     void Update()
     {
-        if(Input.GetKey(KeyCode.Mouse0))
+        if(TouchScreenInputLayer.TouchingHead)
         {
             //Head
             if(!bPendingHead)
             {
                 bPendingHead = true;
                 Head.GetComponent<Rigidbody2D>().angularVelocity = 0f;
+                HeadPendingP.Play();
             }
             else
             {
-                Head.transform.RotateAround(Head.transform.TransformPoint(HeadPivot),Vector3.forward,Time.deltaTime*rotSpeed/SlomoDilation);
+                Head.transform.RotateAround(Head.transform.TransformPoint(HeadPivot),Vector3.forward,Time.deltaTime*rotSpeed/GlobalSlomo.Manager.UserControlledSlomoVal);
             }
         }else if(bPendingHead)
         {
@@ -50,18 +52,21 @@ public class MouseControllerV2 : MonoBehaviour
             ShootingVelHead.x = -Head.transform.right.x;
             ShootingVelHead.y = -Head.transform.right.y;
             Head.GetComponent<Rigidbody2D>().AddForce(ShootingVelHead*speed,ForceMode2D.Impulse);
+            ShootSound.Play();
+            HeadPendingP.Stop();
         }
-        if(Input.GetKey(KeyCode.Mouse1))
+        if(TouchScreenInputLayer.TouchingPipi)
         {
             //Pipi
             if(!bPendingPipi)
             {
                 bPendingPipi = true;
                 Pipi.GetComponent<Rigidbody2D>().angularVelocity = 0f;
+                PipiPendingP.Play();
             }
             else
             {
-                Pipi.transform.RotateAround(Pipi.transform.TransformPoint(PipiPivot),Vector3.forward,Time.deltaTime*rotSpeed/SlomoDilation);
+                Pipi.transform.RotateAround(Pipi.transform.TransformPoint(PipiPivot),Vector3.forward,Time.deltaTime*rotSpeed/GlobalSlomo.Manager.UserControlledSlomoVal);
             }
         }else if(bPendingPipi)
         {
@@ -71,17 +76,17 @@ public class MouseControllerV2 : MonoBehaviour
             ShootingVelPipi.x = Pipi.transform.right.x;
             ShootingVelPipi.y = Pipi.transform.right.y;
             Pipi.GetComponent<Rigidbody2D>().AddForce(ShootingVelPipi*speed,ForceMode2D.Impulse);
+            ShootSound.Play();
+            PipiPendingP.Stop();
         }
 
         //Slomo
-        if((bPendingPipi||bPendingHead)&&!bIsSlomo){
-            bIsSlomo = true;
-            Time.timeScale = SlomoDilation;
-            Time.fixedDeltaTime = savedFixedDeltaTime*SlomoDilation;
-        }else if(!(bPendingPipi||bPendingHead)&&bIsSlomo){
-            bIsSlomo = false;
-            Time.timeScale = 1.0f;
-            Time.fixedDeltaTime = savedFixedDeltaTime;
+        if((bPendingPipi||bPendingHead)&&!GlobalSlomo.Manager.UserSlomoing){
+            GlobalSlomo.Manager.UserSetSlomo(true);
+            SpinSound.Play();
+        }else if(!(bPendingPipi||bPendingHead)&&GlobalSlomo.Manager.UserSlomoing){
+            GlobalSlomo.Manager.UserSetSlomo(false);
+            SpinSound.Stop();
         }
         Dist = (Head.transform.TransformPoint(HeadPivot)-Pipi.transform.TransformPoint(PipiPivot)).magnitude;
         if(Dist<JointAffectMinDist && Joint.enabled == true)

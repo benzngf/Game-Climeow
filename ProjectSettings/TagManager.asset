@@ -3,7 +3,8 @@
 --- !u!78 &1
 TagManager:
   serializedVersion: 2
-  tags: []
+  tags:
+  - FxTemporaire
   layers:
   - Default
   - TransparentFX
@@ -13,9 +14,9 @@ TagManager:
   - UI
   - 
   - 
-  - 
-  - 
-  - 
+  - Player
+  - Wall
+  - Collectable
   - 
   - 
   - 
@@ -41,6 +42,12 @@ TagManager:
   - name: Background
     uniqueID: 741885599
     locked: 0
+  - name: BackgroundEff
+    uniqueID: 87419807
+    locked: 0
   - name: Default
     uniqueID: 0
+    locked: 0
+  - name: Foreground
+    uniqueID: 1539172207
     locked: 0

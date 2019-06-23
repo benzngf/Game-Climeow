@@ -5,17 +5,29 @@ using UnityEngine;
 public class HeadController : MonoBehaviour
 {
     public SpriteRenderer HeadSprite;
-    public Texture2D NormalHead;
-    public Texture2D CollideHead;
+    public Sprite NormalHead;
+    public Sprite CollideHead;
     // Start is called before the first frame update
-    void Start()
-    {
-        
+    public float CollidingHeadTime;
+    private float CountTime;
+    private bool usingColHead = false;
+    private void OnCollisionEnter2D(Collision2D other) {
+        CountTime = CollidingHeadTime;
+        if(!usingColHead)
+        {
+            HeadSprite.sprite = CollideHead;
+            usingColHead = true;
+        }
     }
-
-    // Update is called once per frame
     void Update()
     {
-        
+        if(usingColHead){
+            CountTime-=Time.deltaTime;
+            if(CountTime<=0f)
+            {
+                HeadSprite.sprite = NormalHead;
+                usingColHead = false;
+            }
+        }
     }
 }
